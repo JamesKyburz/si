@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+device=$(ios-sim showdevicetypes | grep "$2" | head -1)
+ios-sim start --devicetypeid "$device"
+url=$1
+sleep 1
+device=$(xcrun simctl list | grep Booted | awk '{print $3}' | sed 's/[()]//g')
+
+function run {
+  NEXT_WAIT_TIME=1
+  until xcrun simctl openurl $device $url || [ $NEXT_WAIT_TIME -eq 4 ]; do
+   sleep $(( NEXT_WAIT_TIME++ ))
+  done
+}
+run
